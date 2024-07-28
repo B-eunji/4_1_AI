@@ -1,0 +1,148 @@
+.class5 {
+    display: flex;
+    height: 2.5rem;
+    width: 100%;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+    background-color: #f3f4f6;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    outline-offset: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  
+  .class5:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+  }
+  
+  .class5:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .custom-button1 {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    outline-offset: 0.25rem;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    pointer-events: auto;
+    opacity: 1;
+    background-color: black;
+    color: #ffffff;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .custom-button1:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+  }
+  
+  .custom-button1:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  
+  .custom-button1:hover {
+    background-color: rgba(0, 116, 200, 0.9);
+  }
+  
+  .custom-container {
+    padding: 1rem;
+    background-color: #f5f5f5;
+    border-radius: 0.375rem;
+    width: 100%;
+  }
+  
+  .custom-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+  .custom-small-text {
+    font-size: 0.875rem;
+  }
+  
+  .custom-margin-top {
+    margin-top: 1rem;
+  }
+  
+  .custom-full-width-height {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .custom-full-size {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .custom-flex-justify-between1 {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+    
+  .divider {
+    width: 100%;
+    height: 1px;
+    background-color: #e5e5e5;
+    margin: 1rem 0;
+}
+
+  
+  .custom-text-lg-bold1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+  .custom-text-2xl-bold-red {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #dc2626;
+  }
+  
+  .custom-text-lg-bold2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+  .custom-text-2xl-bold1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  .custom-text-lg-bold3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+  .custom-text-2xl-bold2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  .custom-mt-4 {
+    margin-top: 1rem;
+  }
+  
+  .custom-text-lg-bold4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+
+  
+  .custom-text-sm {
+    font-size: 0.875rem;
+  }
+

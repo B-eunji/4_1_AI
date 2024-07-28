@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해양 사고 예측 시스템</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        .leaflet-container {
+            background: #b0d3e4;
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem;
+            background-color: #0074c8;
+            width: 25rem;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            color: white;
+            overflow-y: auto;
+        }
+        .sidebar h1 {
+            margin-bottom: 1rem;
+        }
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .input-container input, .input-container button {
+            height: 2.5rem;
+        }
+        .custom-container {
+            background-color: white;
+            color: black;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            width: 100%;
+        }
+        .gauge-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 500px;
+            margin-bottom: 1rem;
+        }
+        .gauge {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        .gauge .dial {
+            fill: none;
+            stroke: #e6e6e6;
+            stroke-width: 10;
+        }
+        .gauge .value {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform-origin: center;
+            transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+        }
+        .gauge .pointer {
+            fill: black;
+            transform-origin: center;
+            transform: rotate(0deg);
+            transition: transform 0.5s ease;
+        }
+        .gauge .label {
+            font-size: 1.2rem;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .divider {
+            width: 100%;
+            height: 1px;
+            background-color: black;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div class="sidebar">
+        <h1 class="title">해양 사고 예측 시스템</h1>
+        <div class="input-container">
+            <input class="class5" id="latitude" placeholder="위도"/>
+            <input class="class5" id="longitude" placeholder="경도"/>
+            <button class="custom-button1" id="searchButton">조회</button>
+        </div>
+        <div class="custom-container">
+            <p class="custom-small-text">해양사고 예측 시스템은 수치모델 기반의 예측결과로만을 참고용으로 사용하시기 바랍니다.</p>
+            <div class="gauge-container">
+                <svg class="gauge" viewBox="0 0 100 50">
+                    <path class="dial" d="M 10 40 A 40 40 0 0 1 90 40" stroke="red" stroke-width="5" fill="none"></path>
+                    <path class="value" id="valuePath" d="M 10 40 A 40 40 0 0 1 90 40" stroke="red" stroke-width="10" fill="none" stroke-dasharray="126" stroke-dashoffset="126" opacity="0.5"></path>
+                    <polygon class="pointer" points="50,10 45,40 55,40" fill="black" id="pointer"></polygon>
+                    <text x="50" y="30" font-size="8" text-anchor="middle" fill="black">위험(%)</text>
+                    <text x="10" y="45" font-size="5" text-anchor="middle" fill="black">0</text>
+                    <text x="50" y="10" font-size="5" text-anchor="middle" fill="black">50</text>
+                    <text x="90" y="45" font-size="5" text-anchor="middle" fill="black">100</text>
+                    <text x="25" y="25" font-size="5" text-anchor="middle" fill="black">25</text>
+                    <text x="75" y="25" font-size="5" text-anchor="middle" fill="black">75</text>
+                </svg>
+            </div>
+            
+            <div class="custom-flex-justify-between1" style="display: flex; flex-direction: column; align-items: center; margin-top: 1rem;">
+                <div>
+                    <h3 class="custom-text-lg-bold1" style="text-align: center;">위험</h3>
+                    <p class="custom-text-2xl-bold-red" id="riskValue">91.2%</p>
+                </div>
+            </div>
+            <div class="custom-flex-justify-between2" style="display: flex; justify-content: center; align-items: center; margin-top: 1rem;">
+                <div style="text-align: center; margin-right: 2rem; flex: 1;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700;">위도</h3>
+                    <p id="latitudeValue">37.576</p>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700;">경도</h3>
+                    <p id="longitudeValue">126.97</p>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            <div class="custom-mt-4">
+                <h3 class="custom-text-lg-bold4">사고 위험 정보</h3>
+                <div class="custom-flex-justify-between2">
+                    <p class="custom-text-sm" id="accidentType">사고유형: 충돌</p>
+                    <p class="custom-text-sm" id="recentAccidents">최근 사고 발생 횟수: 1회</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var map = L.map('map').setView([35.9078, 127.7669], 7); // 확대 수준을 8로 설정
+
+            L.tileLayer('https://api.vworld.kr/req/wmts/1.0.0/ABB0EA1C-589F-3D7A-B4D4-AD66CA5F58B0/Base/{z}/{y}/{x}.png', {
+                attribution: '&copy; <a href="http://www.vworld.kr">VWorld</a> contributors'
+            }).addTo(map);
+
+            var markers = L.markerClusterGroup();
+
+            // 서버에서 23년도 데이터 가져오기
+            fetch('/sample-data')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Sample data received:", data);
+
+                    data.forEach(location => {
+                        var marker = L.marker(new L.LatLng(location.latitude, location.longitude))
+                            .bindPopup('<b>사고유형:</b> ' + location.accidentType + '<br><b>사고 횟수:</b> ' + location.accidentCount + '회' + '<br><b>위도:</b> ' + location.latitude + '<br><b>경도:</b> ' + location.longitude);
+                        markers.addLayer(marker);
+                    });
+
+                    map.addLayer(markers);
+                })
+                .catch(error => console.error('Error fetching sample data:', error));
+
+            // 계기판 업데이트
+            function updateGauge(value) {
+                var pointer = document.getElementById("pointer");
+                var valuePath = document.getElementById("valuePath");
+                var riskValue = document.getElementById("riskValue");
+                riskValue.textContent = value.toFixed(1) + "%";
+
+                var rotation = (value / 100) * 180 - 90; // 0~100 값을 -90도에서 90도로 변환
+                pointer.style.transform = "rotate(" + rotation + "deg)";
+
+                // 위험도에 따른 색상 변경
+                if (value <= 30) {
+                    valuePath.style.stroke = "green";
+                } else if (value <= 60) {
+                    valuePath.style.stroke = "orange";
+                } else {
+                    valuePath.style.stroke = "red";
+                }
+
+                // 위험도에 따른 길이 변경
+                var dashOffset = 126 - (value / 100) * 126;
+                valuePath.style.strokeDashoffset = dashOffset;
+            }
+
+            // 조회 버튼 클릭 이벤트
+            document.getElementById("searchButton").addEventListener("click", function() {
+                var latitude = document.getElementById("latitude").value;
+                var longitude = document.getElementById("longitude").value;
+                var current_time = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                console.log("Sending data:", {
+                    latitude: latitude,
+                    longitude: longitude,
+                    current_time: current_time
+                });
+
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        current_time: current_time
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Received data:", data);
+
+                    document.getElementById("latitudeValue").textContent = latitude;
+                    document.getElementById("longitudeValue").textContent = longitude;
+                    document.getElementById("riskValue").textContent = data.predicted_accident_probability;
+                    document.getElementById("accidentType").textContent = "사고유형: " + data.predicted_accident_type;
+
+                    // 지도 위치 업데이트
+                    map.setView([latitude, longitude], 13);
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup("사고유형: " + data.predicted_accident_type + "<br>위험도: " + data.predicted_accident_probability)
+                        .openPopup();
+
+                    updateGauge(parseFloat(data.predicted_accident_probability));
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            // Add zoom control to the map
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+
+            // Listen for zoom and move events
+            map.on('zoomend moveend', function() {
+                var transform = map._mapPane.style.transform;
+                console.log('Transform:', transform);
+            });
+        });
+    </script>
+</body>
+</html>
